@@ -12,9 +12,17 @@ import tensorflow as tf
 FLAGS = None
 
 
-def main(_):
+def main():
+    # Arg parse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_dir', type=str, default='./input_data',
+                        help='Directory for storing input data')
+    args = parser.parse_args()
+
+    data_dir = args.data_dir
+
     # Import data
-    mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
+    mnist = input_data.read_data_sets(data_dir, one_hot=True)
 
     # Create the model
     inputs = tf.placeholder(tf.float32, [None, 784])
@@ -24,6 +32,7 @@ def main(_):
 
     # Label placeholder
     labels = tf.placeholder(tf.float32, [None, 10])
+
 
     # Loss and Optimezer
     cross_entropy = tf.reduce_mean(
@@ -42,13 +51,10 @@ def main(_):
     # Test trained model
     correct_prediction = tf.equal(tf.argmax(outputs, 1), tf.argmax(labels, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    print("Test Accuracy  : " + sess.run(accuracy,
+    print("Test Accuracy  : ", sess.run(accuracy,
                                          feed_dict={inputs: mnist.test.images,
-                                                    outputs: mnist.test.labels}))
+                                                    labels: mnist.test.labels}))
+
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir', type=str, default='./input_data',
-                        help='Directory for storing input data')
-    FLAGS, unparsed = parser.parse_known_args()
-    tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
+    main()
