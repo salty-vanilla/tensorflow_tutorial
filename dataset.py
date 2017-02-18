@@ -37,12 +37,11 @@ class Dataset(object):
             random.shuffle(indexes)
 
         for iter in range(max_iter):
-            # print(batch_size * iter, batch_size * (iter + 1))
-            yield self.images[batch_size * iter:batch_size * (iter + 1)], \
-                  self.labels[batch_size * iter:batch_size * (iter + 1)]
+            batch_indexes = indexes[batch_size * iter:batch_size * (iter + 1)]
+            yield self.images[batch_indexes], self.labels[batch_indexes]
 
         if not self.num_data == batch_size * (iter + 1):
-            yield self.images[batch_size * (iter + 1):], \
-                  self.labels[batch_size * (iter + 1):]
+            batch_indexes = indexes[batch_size * (iter + 1):]
+            yield self.images[batch_indexes], self.labels[batch_indexes]
 
 
