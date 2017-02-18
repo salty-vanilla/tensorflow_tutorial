@@ -1,8 +1,8 @@
 # coding:utf-8
 try:
-   import cPickle as pickle
+    import cPickle as pickle
 except:
-   import pickle
+    import pickle
 import gzip
 from collections import namedtuple
 from dataset import Dataset
@@ -10,11 +10,12 @@ import os
 
 
 valid_num = 10000
-origin = 'https://s3.amazonaws.com/img-datasets/mnist.pkl.gz'
+origin = "https://s3.amazonaws.com/img-datasets/mnist.pkl.gz"
 
 
 def get_file(url, dst_path):
     import urllib
+    # noinspection PyBroadException
     try:
         urllib.urlretrieve(url, dst_path)
     except:
@@ -22,8 +23,7 @@ def get_file(url, dst_path):
         request.urlretrieve(url, dst_path)
 
 
-def load_mnist(data_dir,
-               flatten=False, one_hot=True):
+def load_mnist(data_dir, flatten=True, one_hot=True, normalization=True):
     data_path = os.path.join(data_dir, "mnist.pkl.gz")
 
     if not os.path.exists(data_path):
@@ -49,9 +49,9 @@ def load_mnist(data_dir,
 
     datasets = namedtuple('Datasets', ['train', 'validation', 'test'])
 
-    datasets.train = Dataset(images=x_train, labels=y_train, one_hot=one_hot, normalization=True)
-    datasets.valid = Dataset(images=x_valid, labels=y_valid, one_hot=one_hot, normalization=True)
-    datasets.test = Dataset(images=x_test, labels=y_test, one_hot=one_hot, normalization=True)
+    datasets.train = Dataset(images=x_train, labels=y_train, one_hot=one_hot, normalization=normalization)
+    datasets.valid = Dataset(images=x_valid, labels=y_valid, one_hot=one_hot, normalization=normalization)
+    datasets.test = Dataset(images=x_test, labels=y_test, one_hot=one_hot, normalization=normalization)
 
     return datasets
 

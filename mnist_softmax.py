@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import argparse
 import sys
@@ -11,7 +12,6 @@ import tensorflow as tf
 # from tensorflow.examples.tutorials.mnist import input_data
 from load_mnist import load_mnist
 import sys
-
 
 FLAGS = None
 
@@ -32,7 +32,7 @@ def main():
     verbose = args.verbose
 
     # Import data
-    mnist = load_mnist(flatten=True, data_dir=data_dir)
+    mnist = load_mnist(data_dir=data_dir)
 
     # Create the model
     inputs = tf.placeholder(tf.float32, [None, 784])
@@ -49,7 +49,7 @@ def main():
 
     # Loss and Optimezer
     cross_entropy = tf.reduce_mean(
-      tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=outputs))
+        tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=outputs))
     train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 
     # Session
@@ -68,8 +68,8 @@ def main():
                 length = 30
                 percentage = float(iter * batch_size / mnist.train.num_data)
                 bar = "[" + "=" * int(length * percentage) + "-" * (length - int(length * percentage)) + "]"
-                display = "\r{} / {} {} "\
-                          "loss: {:.4f} - acc: {:.4f}"\
+                display = "\r{} / {} {} " \
+                          "loss: {:.4f} - acc: {:.4f}" \
                     .format(iter * batch_size, mnist.train.num_data, bar, train_loss, train_accuracy)
                 sys.stdout.write(display)
                 sys.stdout.flush()
@@ -78,7 +78,7 @@ def main():
         valid_loss, valid_accuracy = sess.run([cross_entropy, accuracy],
                                               feed_dict=feed_dict)
         if verbose == 1:
-            display = " - val_loss : {:.4f} - val_acc : {:.4f}\n"\
+            display = " - val_loss : {:.4f} - val_acc : {:.4f}\n" \
                 .format(valid_loss, valid_accuracy)
             sys.stdout.write(display)
 
@@ -96,3 +96,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

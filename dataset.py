@@ -20,7 +20,7 @@ class Dataset(object):
     @staticmethod
     def convert_to_one_hot(labels):
         counter = Counter(labels)
-        label_num = len(counter.keys())
+        label_num = len(list(counter.keys()))
 
         one_hot = np.zeros((labels.shape[0], label_num))
 
@@ -37,7 +37,7 @@ class Dataset(object):
             random.shuffle(indexes)
 
         for iter in range(max_iter):
-            batch_indexes = indexes[batch_size * iter:batch_size * (iter + 1)]
+            batch_indexes = indexes[batch_size * iter: batch_size * (iter + 1)]
             yield self.images[batch_indexes], self.labels[batch_indexes]
 
         if not self.num_data == batch_size * (iter + 1):
