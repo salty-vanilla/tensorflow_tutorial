@@ -24,10 +24,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', type=str, default='./input_data/mnist.pkl.gz',
                         help='Type mnist data path')
+    parser.add_argument('--verbose', type=int, default=1)
 
     args = parser.parse_args()
 
     data_path = args.data_path
+    verbose = args.verbose
 
     # Import data
     mnist = load_mnist(flatten=True, data_path=data_path)
@@ -56,32 +58,40 @@ def main():
 
     # Train
     for epoch in range(nb_epochs):
-        sys.stdout.write("[epoch] : %d\n" % epoch)
+        sys.stdout.write("Epoch %d/%d\n" % (epoch, nb_epochs))
         for iter, (batch_xs, batch_ys) in enumerate(mnist.train.next_batch(batch_size)):
             feed_dict = {inputs: batch_xs, labels: batch_ys}
             _, train_loss, train_accuracy = sess.run([train_step, cross_entropy, accuracy],
                                                      feed_dict=feed_dict)
-            sys.stdout.flush()
-            sys.stdout.write("\r%d / %d" % ((iter * batch_size), mnist.train.num_data))
-            sys.stdout.write("  [train loss] : %f" % train_loss)
-            sys.stdout.write("  [train accuracy] %f" % train_accuracy)
+
+            if verbose == 1:
+                length = 30
+                percentage = float(iter * batch_size / mnist.train.num_data)
+                bar = "[" + "=" * int(length * percentage) + "-" * (length - int(length * percentage)) + "]"
+                display = "\r{} / {} {} "\
+                          "loss: {:.4f} - acc: {:.4f}"\
+                    .format(iter * batch_size, mnist.train.num_data, bar, train_loss, train_accuracy)
+                sys.stdout.write(display)
+                sys.stdout.flush()
 
         feed_dict = {inputs: mnist.valid.images, labels: mnist.valid.labels}
         valid_loss, valid_accuracy = sess.run([cross_entropy, accuracy],
                                               feed_dict=feed_dict)
+        if verbose == 1:
+            display = " - val_loss : {:.4f} - val_acc : {:.4f}\n"\
+                .format(valid_loss, valid_accuracy)
+            sys.stdout.write(display)
 
-        sys.stdout.write("\n[valid loss] : %f" % valid_loss)
-        sys.stdout.write("  [valid accuracy] %f\n\n" % valid_accuracy)
-
-    sys.stdout.write("Complete training !!\n")
+    sys.stdout.write("\nComplete training !!\n")
 
     # Test trained model
     feed_dict = {inputs: mnist.train.images, labels: mnist.train.labels}
     test_loss, test_accuracy = sess.run([cross_entropy, accuracy],
-                                          feed_dict=feed_dict)
+                                        feed_dict=feed_dict)
 
-    sys.stdout.write("[test loss] : %f" % test_loss)
-    sys.stdout.write("  [test accuracy] %f\n" % test_accuracy)
+    display = "test_loss : {:.4f} - test_acc : {:.4f}\n" \
+        .format(test_loss, test_accuracy)
+    sys.stdout.write(display)
 
 
 if __name__ == '__main__':
