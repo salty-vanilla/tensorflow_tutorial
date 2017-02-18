@@ -1,6 +1,8 @@
 公式HPからコピーして自分用に手直し
 
-`python mnist_softmax.py`
+```bash
+python mnist_softmax.py
+```
 
 ```
 Epoch 0/10
