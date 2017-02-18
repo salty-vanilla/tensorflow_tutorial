@@ -58,7 +58,7 @@ def main():
 
     # Train
     for epoch in range(nb_epochs):
-        sys.stdout.write("Epoch %d/%d\n" % (epoch, nb_epochs))
+        sys.stdout.write("Epoch %d/%d\n" % (epoch + 1, nb_epochs))
         for iter, (batch_xs, batch_ys) in enumerate(mnist.train.next_batch(batch_size)):
             feed_dict = {inputs: batch_xs, labels: batch_ys}
             _, train_loss, train_accuracy = sess.run([train_step, cross_entropy, accuracy],
