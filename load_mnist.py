@@ -22,10 +22,12 @@ def get_file(url, dst_path):
         request.urlretrieve(url, dst_path)
 
 
-def load_mnist(data_path="./input_data/mnist.pkl.gz",
+def load_mnist(data_dir,
                flatten=False, one_hot=True):
+    data_path = os.path.join(data_dir, "mnist.pkl.gz")
 
     if not os.path.exists(data_path):
+        os.makedirs(data_dir, exist_ok=True)
         get_file(origin, data_path)
 
     f = gzip.open(data_path, 'rb')

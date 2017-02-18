@@ -22,17 +22,17 @@ nb_epochs = 10
 def main():
     # Arg parse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', type=str, default='./input_data/mnist.pkl.gz',
+    parser.add_argument('--data_dir', type=str, default='./input_data/',
                         help='Type mnist data path')
     parser.add_argument('--verbose', type=int, default=1)
 
     args = parser.parse_args()
 
-    data_path = args.data_path
+    data_dir = args.data_dir
     verbose = args.verbose
 
     # Import data
-    mnist = load_mnist(flatten=True, data_path=data_path)
+    mnist = load_mnist(flatten=True, data_dir=data_dir)
 
     # Create the model
     inputs = tf.placeholder(tf.float32, [None, 784])
