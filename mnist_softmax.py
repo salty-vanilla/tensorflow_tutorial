@@ -2,27 +2,35 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import argparse
 import sys
-
-from tensorflow.examples.tutorials.mnist import input_data
-
 import tensorflow as tf
 
+# from tensorflow.examples.tutorials.mnist import input_data
+from load_mnist import load_mnist
+import sys
+
+
 FLAGS = None
+
+batch_size = 100
+nb_epochs = 10
 
 
 def main():
     # Arg parse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_dir', type=str, default='./input_data',
-                        help='Directory for storing input data')
+    parser.add_argument('--data_path', type=str, default='./input_data/mnist.pkl.gz',
+                        help='Type mnist data path')
+
     args = parser.parse_args()
 
-    data_dir = args.data_dir
+    data_path = args.data_path
 
     # Import data
-    mnist = input_data.read_data_sets(data_dir, one_hot=True)
+    mnist = load_mnist(flatten=True, data_path=data_path)
 
     # Create the model
     inputs = tf.placeholder(tf.float32, [None, 784])
@@ -33,6 +41,9 @@ def main():
     # Label placeholder
     labels = tf.placeholder(tf.float32, [None, 10])
 
+    # Correct
+    correct_prediction = tf.equal(tf.argmax(outputs, 1), tf.argmax(labels, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     # Loss and Optimezer
     cross_entropy = tf.reduce_mean(
@@ -40,20 +51,37 @@ def main():
     train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 
     # Session
-    sess = tf.InteractiveSession()
-    tf.global_variables_initializer().run()
+    sess = tf.Session()
+    sess.run(tf.global_variables_initializer())
 
     # Train
-    for _ in range(1000):
-        batch_xs, batch_ys = mnist.train.next_batch(100)
-        sess.run(train_step, feed_dict={inputs: batch_xs, labels: batch_ys})
+    for epoch in range(nb_epochs):
+        sys.stdout.write("[epoch] : %d\n" % epoch)
+        for iter, (batch_xs, batch_ys) in enumerate(mnist.train.next_batch(batch_size)):
+            feed_dict = {inputs: batch_xs, labels: batch_ys}
+            _, train_loss, train_accuracy = sess.run([train_step, cross_entropy, accuracy],
+                                                     feed_dict=feed_dict)
+            sys.stdout.flush()
+            sys.stdout.write("\r%d / %d" % ((iter * batch_size), mnist.train.num_data))
+            sys.stdout.write("  [train loss] : %f" % train_loss)
+            sys.stdout.write("  [train accuracy] %f" % train_accuracy)
+
+        feed_dict = {inputs: mnist.valid.images, labels: mnist.valid.labels}
+        valid_loss, valid_accuracy = sess.run([cross_entropy, accuracy],
+                                              feed_dict=feed_dict)
+
+        sys.stdout.write("\n[valid loss] : %f" % valid_loss)
+        sys.stdout.write("  [valid accuracy] %f\n\n" % valid_accuracy)
+
+    sys.stdout.write("Complete training !!\n")
 
     # Test trained model
-    correct_prediction = tf.equal(tf.argmax(outputs, 1), tf.argmax(labels, 1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-    print("Test Accuracy  : ", sess.run(accuracy,
-                                         feed_dict={inputs: mnist.test.images,
-                                                    labels: mnist.test.labels}))
+    feed_dict = {inputs: mnist.train.images, labels: mnist.train.labels}
+    test_loss, test_accuracy = sess.run([cross_entropy, accuracy],
+                                          feed_dict=feed_dict)
+
+    sys.stdout.write("[test loss] : %f" % test_loss)
+    sys.stdout.write("  [test accuracy] %f\n" % test_accuracy)
 
 
 if __name__ == '__main__':
